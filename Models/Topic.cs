@@ -1,15 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace EmailNewsletter.Models
 {
     public class Topic
     {
-        [Required]
-        [Range(0, int.MaxValue)]
-        [Key]
         public int Id { get; set; }
-        [Required]
         public string Name { get; set; } = null!;
-        virtual public ICollection<EmailTopic> EmailTopic { get; set; } = new List<EmailTopic>();
+        public virtual ICollection<EmailTopic> EmailTopics { get; set; } = new List<EmailTopic>();
     }
 }
