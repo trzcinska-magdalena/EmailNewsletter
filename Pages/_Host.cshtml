@@ -1,0 +1,42 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Components.Web
+@namespace EmailNewsletter.Pages
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <base href="~/" />
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
+    <link href="css/site.css" rel="stylesheet" />
+    <link href="EmailNewsletter.styles.css" rel="stylesheet" />
+    <link rel="icon" type="image/png" href="favicon.png"/>
+    <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
+</head>
+<body>
+    <component type="typeof(App)" render-mode="ServerPrerendered" />
+
+    <div id="blazor-error-ui">
+        <environment include="Staging,Production">
+            An error has occurred. This application may no longer respond until reloaded.
+        </environment>
+        <environment include="Development">
+            An unhandled exception has occurred. See browser dev tools for details.
+        </environment>
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <script src="_framework/blazor.server.js"></script>
+</body>
+</html>
+
+
+@*HeadOutlet - komponent, który pozwala na wstrzyknięcie metadanych strony na etapie renderowania
+w sekcji head, ponieważ przeglądarka jeszcze nie jest aktywna.
+
+używając komponentu HeadOutlet, można dynamicznie dostarczyć metadane strony poprzez umieszczenie ich wewnątrz komponentu, 
+a framework Blazor zajmie się ich wstrzyknięciem w odpowiednie miejsce w sekcji.*@
+
