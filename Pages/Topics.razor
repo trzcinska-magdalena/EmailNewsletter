@@ -1,0 +1,68 @@
+﻿@page "/topics"
+@inject ITopicService Service;
+
+
+<h3>Topics</h3>
+
+@if (topics == null)
+{
+    <p>Loading...</p>
+}
+else {
+
+    <form @onsubmit="AddTopic">
+        <div class="input-group mb-3">
+            <input type="text" class="form-control" placeholder="Name" aria-label="Recipient's username" aria-describedby="button-addon2" @bind="newTopicName">
+            <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Add</button>
+        </div>
+    </form>
+
+    @if(topics.Count() == 0)
+    {
+        <p>No data avaliable.</p>
+    }
+    else
+    {
+        <ul class="list-group">
+            @foreach (var topic in topics)
+            {
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    @topic.Name
+                    <span>
+                        <span class="badge bg-primary rounded-pill">14</span>
+                        <i class="oi oi-x bg-danger" @onclick="() => RemoveTopic(topic)"></i>
+                    </span>
+                </li>      
+            }
+        </ul>
+    }
+}
+
+
+@code {
+    private ICollection<Topic> topics;
+    private string newTopicName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        topics = await Service.GetTopicsAsync();
+    }
+
+    private async Task AddTopic()
+    {
+        if (!string.IsNullOrWhiteSpace(newTopicName))
+        {
+            var newTopic = new Topic { Name = newTopicName };
+            await Service.AddNewTopic(newTopic);         
+            topics.Add(newTopic);
+            newTopicName = string.Empty;
+        }
+    }
+
+    private async Task RemoveTopic(Topic topic)
+    {
+        await Service.RemoveTopic(topic);
+        topics.Remove(topic);
+    }
+}
+

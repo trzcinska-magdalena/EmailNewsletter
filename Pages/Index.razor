@@ -1,16 +1,22 @@
 ﻿@page "/"
+@inject Data.ITopicService Service;
 
 <PageTitle>Home</PageTitle>
 
 <h1>Summary</h1>
 
-<div class="d-flex flex-wrap justify-content-around mt-5 ">
+<div class="d-flex flex-wrap justify-content-around mt-5">
     <Card Header="Emails" Value="1000" />
     <Card Header="Topics" Value="220" />
+    <Card Header="Topics" Value=topics />
 </div>
 
+@code
+{
+    int topics;
 
-
-
-
-
+    protected override async Task OnInitializedAsync()
+    {
+        topics = await @Service.GetCountTopicsAsync();
+    }
+}
