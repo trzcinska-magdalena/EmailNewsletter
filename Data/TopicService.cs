@@ -1,11 +1,13 @@
 ﻿using EmailNewsletter.Models;
+using EmailNewsletter.Pages;
 using Microsoft.EntityFrameworkCore;
 
 namespace EmailNewsletter.Data
 {
     public interface ITopicService
     {
-        Task<ICollection<Topic>> GetTopicsAsync();
+        Task<IDictionary<Topic, int>> GetTopicsWithAmountOfEmial();
+        Task<int> GetAmountEmailsToTopic(int topicId);
         Task<int> GetCountTopicsAsync();
         Task AddNewTopic(Topic topic);
         Task RemoveTopic(Topic topic);
@@ -20,26 +22,81 @@ namespace EmailNewsletter.Data
             _newsletterContext = newsletterContext;
         }
 
-        public async Task<ICollection<Topic>> GetTopicsAsync()
+        public async Task<IDictionary<Topic, int>> GetTopicsWithAmountOfEmial()
         {
-            return await _newsletterContext.Topics.ToListAsync();
+            Dictionary<Topic, int> topicsWithAmountOfEmail = new Dictionary<Topic, int>();
+
+            try
+            {
+                List<Topic> topics = await _newsletterContext.Topics.ToListAsync();
+
+                foreach (var topic in topics)
+                {
+                    int emailCount = await GetAmountEmailsToTopic(topic.Id);
+                    topicsWithAmountOfEmail.Add(topic, emailCount);
+                }
+            }
+            catch (Exception ex)
+            {
+                //TODO
+                throw new Exception();
+            }
+
+            return topicsWithAmountOfEmail;
+        }
+
+        public async Task<int> GetAmountEmailsToTopic(int topicId)
+        {
+            try
+            {
+                return await _newsletterContext.EmailTopics.Where(e => e.TopicId == topicId).CountAsync();
+            }
+            catch (Exception ex)
+            {
+                //TODO
+                throw new Exception();
+            }
         }
 
         public async Task<int> GetCountTopicsAsync()
         {
-            return await _newsletterContext.Topics.CountAsync();
+            try
+            {
+                return await _newsletterContext.Topics.CountAsync();
+            }
+            catch (Exception ex)
+            {
+                //TODO
+                throw new Exception();
+            }
         }
 
         public async Task AddNewTopic(Topic topic)
         {
-            _newsletterContext.Topics.Add(topic);
-            await _newsletterContext.SaveChangesAsync();
+            try
+            {
+                _newsletterContext.Topics.Add(topic);
+                await _newsletterContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                //TODO
+                throw new Exception();
+            }
         }
 
         public async Task RemoveTopic(Topic topic)
         {
-            _newsletterContext.Topics.Remove(topic);
-            await _newsletterContext.SaveChangesAsync();
+            try
+            {
+                _newsletterContext.Topics.Remove(topic);
+                await _newsletterContext.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                //TODO
+                throw new Exception();
+            }
         }
     }
 }
