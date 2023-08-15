@@ -1,0 +1,15 @@
+﻿<div class="alert alert-dismissible @AlertType fade @(@IsHidden==true ? null : "show")">
+    <strong>Oh!</strong> @Message
+    @*<button type="button" class="btn-close" data-bs-dismiss="alert"></button>*@
+</div>
+
+
+
+@code {
+    [Parameter]
+    public string? AlertType { get; set; }
+    [Parameter]
+    public string? Message { get; set; }
+    [Parameter]
+    public bool? IsHidden { get; set; }
+}
