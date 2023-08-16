@@ -1,0 +1,76 @@
+﻿@page "/emails"
+@inject IEmailService Service;
+
+<Alert AlertType=@alertDetails.Item1 Message=@alertDetails.Item2 IsHidden=@alertDetails.Item3 />
+
+<h3>Emails</h3>
+
+@if (allEmails == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" placeholder="Search" @oninput="ShowSearchedEmails">
+    </div>
+
+    @if (allEmails.Count() == 0)
+    {
+        <p>No data avaliable.</p>
+    }
+    else
+    {
+        <ul class="list-group">
+            @foreach (var email in allEmails)
+            {
+                <li class="list-group-item d-flex align-items-center">
+                    <span class="me-auto">@email.Name - @email.EmailAddress</span>
+                </li>
+            }
+        </ul>
+    }
+}
+
+
+@code {
+    private ICollection<Email> allEmails;
+    private (string, string, bool) alertDetails = ("", "", true);
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            allEmails = await Service.GetAllEmails();
+        }
+        catch (Exception ex)
+        {
+            alertDetails = ("alert-danger", "An unexpected error occurred.", false);
+            await HideAlert(3);
+            return;
+        }
+    }
+
+    private async Task ShowSearchedEmails(ChangeEventArgs eventArgs)
+    {
+        string searchEmail = eventArgs.Value.ToString();
+
+        try
+        {
+            allEmails = await Service.GetAllEmails();
+        }
+        catch(Exception ex)
+        {
+            alertDetails = ("alert-danger", "An unexpected error occurred.", false);
+            await HideAlert(3);
+            return;
+        }
+        allEmails = allEmails.Where(e => e.Name.Contains(searchEmail) || e.EmailAddress.Contains(searchEmail)).ToList();
+    }
+
+    private async Task HideAlert(int delay)
+    {
+        await Task.Delay(TimeSpan.FromSeconds(delay));
+        alertDetails = ("", "", true);
+    }
+}
