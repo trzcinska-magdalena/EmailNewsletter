@@ -2,36 +2,36 @@
 @inject ITopicService Service;
 
 
+<Alert AlertType=@alertDetails.Item1 Message=@alertDetails.Item2 IsHidden=@alertDetails.Item3 />
+
 <h3>Topics</h3>
 
-@if (topics == null)
+@if (topicsWithEmails == null)
 {
     <p>Loading...</p>
 }
 else {
-
     <form @onsubmit="AddTopic">
         <div class="input-group mb-3">
-            <input type="text" class="form-control" placeholder="Name" aria-label="Recipient's username" aria-describedby="button-addon2" @bind="newTopicName">
-            <button class="btn btn-outline-secondary" type="submit" id="button-addon2">Add</button>
+            <input type="text" class="form-control" placeholder="Name" aria-label="Recipient's username" aria-describedby="button-add" @bind="newTopicName">
+            <button class="btn btn-outline-primary" type="submit" id="button-add">Add</button>
         </div>
     </form>
 
-    @if(topics.Count() == 0)
+    @if (topicsWithEmails.Count() == 0)
     {
         <p>No data avaliable.</p>
     }
     else
     {
         <ul class="list-group">
-            @foreach (var topic in topics)
+            @foreach (var topic in topicsWithEmails)
             {
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    @topic.Name
-                    <span>
-                        <span class="badge bg-primary rounded-pill">14</span>
-                        <i class="oi oi-x bg-danger" @onclick="() => RemoveTopic(topic)"></i>
-                    </span>
+                <li class="list-group-item d-flex align-items-center">
+                    <span class="me-auto">@topic.Key.Name</span>
+
+                    <span class="badge rounded-pill bg-primary me-1">@topic.Value</span>
+                    <button class="btn-close btn-sm" @onclick="() => RemoveTopic(topic.Key)"></button>
                 </li>      
             }
         </ul>
@@ -40,12 +40,22 @@ else {
 
 
 @code {
-    private ICollection<Topic> topics;
+    private IDictionary<Topic, int> topicsWithEmails;
     private string newTopicName;
+    private (string, string, bool) alertDetails = ("", "", true);
 
     protected override async Task OnInitializedAsync()
     {
-        topics = await Service.GetTopicsAsync();
+        try
+        {
+            topicsWithEmails = await Service.GetTopicsWithAmountOfEmial();
+        }
+        catch (Exception ex)
+        {
+            alertDetails = ("alert-danger", "An unexpected error occurred.", false);
+            await HideAlert(3);
+            return;
+        }
     }
 
     private async Task AddTopic()
@@ -53,16 +63,47 @@ else {
         if (!string.IsNullOrWhiteSpace(newTopicName))
         {
             var newTopic = new Topic { Name = newTopicName };
-            await Service.AddNewTopic(newTopic);         
-            topics.Add(newTopic);
+
+            try
+            {
+                await Service.AddNewTopic(newTopic);
+            }
+            catch(Exception ex)
+            {
+                alertDetails = ("alert-danger", "An unexpected error occurred.", false);
+                await HideAlert(3);
+
+                return;
+            }
+            topicsWithEmails.Add(newTopic, 0);
             newTopicName = string.Empty;
+            alertDetails = ("alert-success", "Topic has been added.", false);
+            await HideAlert(3);
         }
     }
 
     private async Task RemoveTopic(Topic topic)
     {
-        await Service.RemoveTopic(topic);
-        topics.Remove(topic);
+        try
+        {
+            await Service.RemoveTopic(topic);
+        }
+        catch (Exception ex)
+        {
+            alertDetails = ("alert-danger", "An unexpected error occurred.", false);
+            await HideAlert(3);
+
+            return;
+        }
+        topicsWithEmails.Remove(topic);
+        alertDetails = ("alert-success", "Topic has been removed.", false);
+        await HideAlert(3);
+    }
+
+    private async Task HideAlert(int delay)
+    {
+        await Task.Delay(TimeSpan.FromSeconds(delay));
+        alertDetails = ("", "", true);
     }
 }
 
