@@ -6,6 +6,7 @@ namespace EmailNewsletter.Data
     public interface IEmailService
     {
         Task<ICollection<Email>> GetAllEmails();
+        Task<int> GetCountEmailsAsync();
     }
 
     public class EmailService : IEmailService
@@ -29,5 +30,20 @@ namespace EmailNewsletter.Data
                 throw new Exception();
             }
         }
+
+        public async Task<int> GetCountEmailsAsync()
+        {
+            try
+            {
+                return await _newsletterContext.Emails.CountAsync();
+            }
+            catch (Exception ex)
+            {
+                //TODO
+                throw new Exception();
+            }
+        }
     }
+
+
 }
